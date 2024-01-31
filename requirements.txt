@@ -2,3 +2,9 @@ tensorflow
 pandas
 pyarrow
 matplotlib
+gensim
+scikit-learn
+nltk
+tiktoken
+chainlit
+mlflow

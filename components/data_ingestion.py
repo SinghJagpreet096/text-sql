@@ -9,6 +9,8 @@ def load_data(file_path:str, selected_columns:list):
     y_train = df[["query"]]
     logging.info(f"shape of X_train: {X_train.shape}")
     logging.info(f"shape of y_train: {y_train.shape}")
+    X_train['question'] = X_train["db_id"] +" "+ X_train['question']
+    X_train = X_train.drop('db_id',axis=1)
     return X_train,y_train
 
 
