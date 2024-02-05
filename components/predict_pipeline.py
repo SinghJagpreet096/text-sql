@@ -22,7 +22,7 @@ class PredictAbstract(ABC):
         pass
 
 
-class PredictTiktoken():
+class PredictTiktoken(PredictAbstract):
     def __init__(self,model):
         self.model = model
     def inference_prediction(self,question:str, padding_index=0) -> str:

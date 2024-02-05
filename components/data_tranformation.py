@@ -112,8 +112,6 @@ class EmbeddingTransformer(AbstractDataTransformation):
 
             print(f"embedding_matrix_output:{(embedding_matrix_output.shape)}")
 
-
-
             return (
                 embedding_matrix_input,
                 embedding_matrix_output,

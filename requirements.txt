@@ -8,3 +8,6 @@ nltk
 tiktoken
 chainlit
 mlflow
+datasets
+rouge
+
