@@ -8,7 +8,7 @@ from data_ingestion import load_data
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-import gensim.downloader as api
+
 # >>>
 # >>> model = api.load("glove-twitter-25")  # load glove vectors
 # >>> model.most_similar("cat")  # show words that similar to word 'cat'
@@ -25,7 +25,6 @@ class Tokenizing(AbstractDataTransformation):
     def embeddings(self):
         try:
             # Tokenize input sequences (questions)
-            
             tokenizer_input = Tokenizer()
             tokenizer_input.fit_on_texts(self.X_train['question'])
             X_train_sequences = tokenizer_input.texts_to_sequences(self.X_train['question'])
