@@ -10,7 +10,7 @@ jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
     steps:
-      - uses: 'node20'
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           lfs: true
