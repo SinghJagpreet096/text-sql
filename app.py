@@ -1,6 +1,6 @@
 import chainlit as cl
 from keras.models import load_model
-from components.predict_pipeline import PredictTiktoken
+from pipelines.predict_pipeline import PredictTiktoken
 
 model = load_model('/Users/jagpreetsingh/ML_Projects/text-sql/artifacts/masking-tiktoken.h5')
 @cl.on_message

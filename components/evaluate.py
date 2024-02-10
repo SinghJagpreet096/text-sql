@@ -1,6 +1,6 @@
 from abc import ABC, abstractclassmethod
 from nltk.translate.bleu_score import sentence_bleu,SmoothingFunction
-from  predict_pipeline import PredictTiktoken
+from  pipelines.predict_pipeline import PredictTiktoken
 import pandas as pd
 from data_ingestion import load_data
 from config import Config
@@ -22,7 +22,7 @@ class Evaluate(EvaluateAbstract):
         return bleu_scores
 
         
-if __name__=="__main__":
+if __name__== "__main__":
     X_val, y_val = load_data('data/validation/validation-00000-of-00001.parquet',selected_columns=Config.SELECTED_COLS)
     model = load_model('artifacts/masking-tiktoken.h5')
     score = Evaluate(model).evaluate(X_val,y_val)
