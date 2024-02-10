@@ -1,12 +1,19 @@
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, Attention, Masking, Concatenate
+from tensorflow.keras.losses import SparseCategoricalCrossentropy
 from config import Config
+
 import logging
 from abc import ABC, abstractclassmethod
 
 
+# Model architecture
 embedding_dim = 128
-units = 64
+units = 128
+MAX_LEN = Config.MAX_LEN
+PADD_VAL = Config.PADD_VAL
+
 class AbstractModelTrainer(ABC):
     @abstractclassmethod
     def model_compiler(self):
@@ -42,12 +49,50 @@ class BaseLineLSTM(AbstractModelTrainer):
             raise e
         
 class AttentionLSTM(AbstractModelTrainer):
-    
+    def __init__(self,padded_question, padded_context, padded_sql,VOCAB_SIZE ):
+        self.padded_question = padded_question
+        self.padded_context = padded_context
+        self.padded_sql = padded_sql
+        self.vocab_size = VOCAB_SIZE
+        
     def model_compiler(self):
-        pass
+        # Input layers
+        input_question = Input(shape=(MAX_LEN,))
+        input_context = Input(shape=(MAX_LEN,))
 
-    def model_trainer(self):
-        pass
+        ##masking
+        input_question_masked = Masking(mask_value=PADD_VAL)(input_question)
+        input_context_masked = Masking(mask_value=PADD_VAL)(input_question)
+
+        # Embedding layers
+        embedding_layer_question = Embedding(input_dim=self.vocab_size, output_dim=embedding_dim, )(input_question_masked)
+        embedding_layer_context = Embedding(input_dim=self.vocab_size, output_dim=embedding_dim, )(input_context_masked)
+
+        # LSTM layers
+        lstm_layer_question = LSTM(units, return_sequences=True)(embedding_layer_question)
+        lstm_layer_context = LSTM(units, return_sequences=True)(embedding_layer_context)
+
+        # Attention layer
+        attention = Attention()([lstm_layer_question, lstm_layer_context])
+
+        # Concatenate the attention output with the LSTM output for context
+        context_combined = Concatenate(axis=-1)([lstm_layer_context, attention])
+
+        # Output layer
+        output_layer = Dense(self.vocab_size, activation='softmax')(context_combined)
+
+        # Model
+        model = Model(inputs=[input_question, input_context], outputs=output_layer)
+        model.compile(optimizer='adam', loss=SparseCategoricalCrossentropy(), metrics=['accuracy'])
+
+        return model
+
+
+    def model_trainer(self,model):
+        # Train the model
+        history = model.fit([self.padded_question,self.padded_context], self.padded_sql, epochs=15, batch_size=64, validation_split=0.2)
+        return history, model
+        
             
 
 

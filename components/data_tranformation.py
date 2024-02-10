@@ -4,12 +4,12 @@ import logging
 import numpy as np
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
+import tiktoken
 
-
-# >>>
-# >>> model = api.load("glove-twitter-25")  # load glove vectors
-# >>> model.most_similar("cat")  # show words that similar to word 'cat'
-
+MAX_LEN = 20
+enc = tiktoken.get_encoding('gpt2')
+VOCAB_SIZE = enc.n_vocab
+PADD_VALUE = 63
 
 class AbstractDataTransformation(ABC):
     @abstractmethod
@@ -53,5 +53,24 @@ class Tokenizing(AbstractDataTransformation):
         except Exception as e:
             logging.error(f"error in tokenizing: {e}")
 
+class TikTokenEncoding(AbstractDataTransformation):
+    def __init__(self, question, context, query) -> None:
+        self.question = question
+        self.context = context
+        self.query = query
 
+    def preprocessing(self,column:pd.DataFrame,padd_val:int=-1):
 
+        sequences = []
+        for sent in column:
+            print(enc.encode(sent))
+            sequences.append(enc.encode(sent))
+        padded = pad_sequences(sequences, padding='post',value=padd_val,maxlen=MAX_LEN)
+        return padded
+   
+    def embeddings(self):
+        padded_question = self.preprocessing(self.question,padd_val=PADD_VALUE)
+        padded_context = self.preprocessing(self.context,padd_val=PADD_VALUE)
+        padded_sql = self.preprocessing(self.query,padd_val=PADD_VALUE)
+        return padded_question, padded_context, padded_sql, VOCAB_SIZE
+        

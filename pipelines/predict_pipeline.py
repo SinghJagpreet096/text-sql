@@ -54,7 +54,7 @@ class PredictTiktoken(PredictAbstract):
    
 
 if __name__ == '__main__':
-    model = load_model('/Users/jagpreetsingh/ML_Projects/text-sql/artifacts/tiktoken-enc.h5')
+    model = load_model('artifacts/tiktoken-enc.h5')
     # model = Predict(PredictTiktoken(model))
     pred = PredictTiktoken(model).inference_prediction('How many singers do we have?')
     print(pred) 
