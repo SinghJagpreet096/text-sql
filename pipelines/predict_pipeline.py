@@ -51,7 +51,14 @@ class PredictTiktoken(PredictAbstract):
             pred_queries.append(predicted_query)
             true_queries.append(y_val.loc[i, 'query'])
             return true_queries, pred_queries
-   
+
+class PredictAttentionLSTM(PredictAbstract):
+    
+    def inference_prediction(self):
+        pass
+
+    def batch_prediction(self):
+        pass
 
 if __name__ == '__main__':
     model = load_model('artifacts/tiktoken-enc.h5')

@@ -1,7 +1,5 @@
 import sys
-sys.path.append('/Users/jagpreetsingh/ML_Projects/text-sql/components')
-
-
+sys.path.append('../text-sql/components')
 from data_ingestion import LoadData
 from data_tranformation import Tokenizing, TikTokenEncoding
 from model_trainer import BaseLineLSTM, AttentionLSTM
