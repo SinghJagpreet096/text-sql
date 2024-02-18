@@ -10,4 +10,5 @@ chainlit
 mlflow
 datasets
 rouge
+torch
 
