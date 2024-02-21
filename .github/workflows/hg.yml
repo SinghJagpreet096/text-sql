@@ -1,4 +1,4 @@
-name: Sync to Hugging Face hub
+name: pusn to hg
 on:
   push:
     branches: [main]
