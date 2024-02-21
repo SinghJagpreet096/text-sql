@@ -17,4 +17,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push -f https://singhjagpreet:$HF_TOKEN@huggingface.co/spaces/singhjagpreet/text-2-sql main
+        run: git push -f git@hf.co:spaces/dev2ender/text-sql main
