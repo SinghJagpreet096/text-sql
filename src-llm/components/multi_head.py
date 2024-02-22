@@ -1,7 +1,9 @@
 import torch
+import torch.nn as nn
+
 
 class MultiHeadAttention(nn.Module):
-    
+
     def __init__(self, d_in, d_out, block_size, dropout, num_heads, qkv_bias=False):
         super().__init__()
         assert d_out % num_heads == 0, "d_out must be divisible by n_heads"
@@ -55,3 +57,4 @@ class MultiHeadAttention(nn.Module):
         context_vec = self.out_proj(context_vec) # optional projection
 
         return context_vec
+    
