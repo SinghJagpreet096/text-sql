@@ -1,10 +1,10 @@
-venv/
+.venv/
 data/
 **/__pycache__/
 artifacts/
 notebooks/word2vec-emb.ipynb
 .DS_Store
-.chaintlit/
+.chainlit/
 src-llm/0000.parquet
 src-llm/notebooks/instructions.txt
 
