@@ -31,13 +31,13 @@ logging.info(f" {input_embeddings.shape}")
 print(input_embeddings.shape)
 torch.manual_seed(123)
 
-block_size = max_length
-d_in = output_dim
-d_out = d_in
+# block_size = max_length
+# d_in = output_dim
+# d_out = d_in
 
-mha = MultiHeadAttention(d_in, d_out, block_size, 0.0, num_heads=2)
+# mha = MultiHeadAttention(d_in, d_out, block_size, 0.0, num_heads=2)
 
-batch = input_embeddings
-context_vecs = mha(batch)
+# batch = input_embeddings
+# context_vecs = mha(batch)
 
-print("context_vecs.shape:", context_vecs.shape)
+# print("context_vecs.shape:", context_vecs.shape)
