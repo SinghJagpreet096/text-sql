@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/jagpreetsingh/ML_Projects/text-sql/src-llm/finetune/mlruns/0/82ce91d2a5a54a22837ee9f0ce8b3556/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 82ce91d2a5a54a22837ee9f0ce8b3556
+run_name: test_trainer
+run_uuid: 82ce91d2a5a54a22837ee9f0ce8b3556
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1709088595821
+status: 1
+tags: []
+user_id: jagpreetsingh

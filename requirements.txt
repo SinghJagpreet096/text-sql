@@ -10,5 +10,7 @@ chainlit
 mlflow
 datasets
 rouge
-torch
+transformers
+transformers[torch]
+evaluate
 

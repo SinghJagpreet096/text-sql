@@ -7,4 +7,9 @@ notebooks/word2vec-emb.ipynb
 .chainlit/
 src-llm/0000.parquet
 src-llm/notebooks/instructions.txt
+model.pt
+instructions.txt
+my_model.pt
+finetune/mlruns/
+finetune/test_trainer/
 
