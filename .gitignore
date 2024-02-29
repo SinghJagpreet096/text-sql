@@ -12,4 +12,11 @@ instructions.txt
 my_model.pt
 finetune/mlruns/
 finetune/test_trainer/
+**/mlruns/
+**/test_trainer/
+**/wandb/
+**/results/
+spider_test.txt
+spider_train.txt
+logs/
 

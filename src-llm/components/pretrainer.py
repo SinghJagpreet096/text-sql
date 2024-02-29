@@ -4,27 +4,23 @@ from config import GPT_CONFIG_124M
 from gpt_model import GPTModel
 from torch.optim import AdamW
 import logging
+from data_loader import create_dataloader
 
-batch_size = 16
+batch_size = GPT_CONFIG_124M["batch_size"]
 block_size = GPT_CONFIG_124M["ctx_len"]
-# batch_size = GPT_CONFIG_124M["batch_size"]
-learning_rate = 1e-3
+learning_rate = GPT_CONFIG_124M["learning_rate"]
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = 200
-max_iters = 1000
-eval_interval = 100
+max_iters = GPT_CONFIG_124M["max_iters"]
+eval_interval = GPT_CONFIG_124M["eval_interval"]
 
 
 
 # data loading
 def get_batch(split):
-    # generate a small batch of data of inputs x and targets y
-    data = train_data if split == 'train' else val_data
-    ix = torch.randint(len(data) - block_size, (batch_size,))
-    x = torch.stack([data[i:i+block_size] for i in ix])
-    y = torch.stack([data[i+1:i+block_size+1] for i in ix])
-    x, y = x.to(device), y.to(device)
-    return x, y
+    for batch in dataloader:
+        xb, yb = batch
+        return xb.to(device), yb.to(device)
 
 @torch.no_grad()
 def estimate_loss():
@@ -43,21 +39,12 @@ def estimate_loss():
 
 if __name__ == "__main__":
 
-
-    with open("/Users/jagpreetsingh/ML_Projects/text-sql/src-llm/components/instructions.txt", "r", encoding="utf-8") as f:
+    with open("src-llm/components/instructions.txt", "r", encoding="utf-8") as f:
         text = f.read()
 
+    dataloader = create_dataloader(text, batch_size=8, max_length=4, stride=5)
 
-
-    # Tokenization
-    tokenizer = tiktoken.get_encoding("gpt2")
-
-
-    # Train and test splits
-    data = torch.tensor(tokenizer.encode(text), dtype=torch.long)
-    n = int(0.9*len(data)) # first 90% will be train, rest val
-    train_data = data[:n]
-    val_data = data[n:] 
+    print(dataloader)
 
 
 
@@ -79,15 +66,18 @@ if __name__ == "__main__":
             print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
     # sample a batch of data
-        xb, yb = get_batch('train')
+        xb, yb = get_batch(dataloader)
 
         # evaluate the loss
         logits, loss = model(xb, yb)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
         optimizer.step()
-
+    # genarate a sequence of tokens
+    # context = torch.zeros((1, 1), dtype=torch.long, device=device)
+    # print(tokenizer.decode(model.generate(context, max_new_tokens=1000)[0].tolist()))
     # save the model
-    torch.save(model.state_dict(), 'model.pt')
+    # torch.save(model.state_dict(), 'model.pt')\
+    # model.predict("SELECT * FROM users WHERE name = 'John'")
     
 
