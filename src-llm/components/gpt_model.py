@@ -1,5 +1,5 @@
 import sys
-sys.path.append('components/')
+sys.path.append('src-llm/components/')
 import torch
 import torch.nn as nn
 from layer_norm import LayerNorm
@@ -44,7 +44,7 @@ class GPTModel(nn.Module):
             loss = F.cross_entropy(logits, targets)
         return logits, loss
     
-    def generate(self, idx, max_new_tokens):
+    def generate(self, idx, max_new_tokens=1):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
             # crop idx to the last block_size tokens
@@ -58,6 +58,26 @@ class GPTModel(nn.Module):
             # sample from the distribution
             idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
             # append sampled index to the running sequence
+            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
+        return idx
+    
+    def generate_query(self, idx, max_new_tokens=1, end_token=None):
+        
+        for _ in range(max_new_tokens) :
+            # crop idx to the last block_size tokens
+            idx_cond = idx[:, -self.block_size:]
+            # get the predictions
+            logits, loss = self(idx_cond)
+            # focus only on the last time step
+            logits = logits[:, -1, :] # becomes (B, C)
+            # apply softmax to get probabilities
+            probs = F.softmax(logits, dim=-1) # (B, C)
+            # sample from the distribution
+            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
+            # append sampled index to the running sequence
+            if end_token is not None and idx_next.item() == end_token:
+            # Stop generation if end_pad_token is encountered
+                break
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
