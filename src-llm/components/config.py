@@ -1,11 +1,11 @@
 
 GPT_CONFIG_124M = {
-    "vocab_size" : 50257, # vocabulary size
+    "vocab_size" : 50257, # vocabulary size  (default 50257)
     "batch_size" : 4, # batch size
-    "ctx_len" : 32,     # context length
-    "emb_dim" : 6,      # embedding dimesension
-    "n_head" : 3,        # number of attention heads
-    "n_layers" : 3,      # number of layers
+    "ctx_len" : 32,     # context length (default 1024)
+    "emb_dim" : 768,      # embedding dimesension (default 768)
+    "n_head" : 12,        # number of attention heads (default 12)
+    "n_layers" : 12,      # number of layers (default 12)
     "learning_rate" : 1e-3, # learning rate
     "drop_rate" : 0.1,    # Dropout rate
     "qkv_bias" : False,  # qkv bias
