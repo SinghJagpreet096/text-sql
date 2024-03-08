@@ -6,6 +6,7 @@ from torch.optim import AdamW
 import logging
 from data_loader import create_dataloader
 from datetime import datetime
+import time
 current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
 batch_size = GPT_CONFIG_124M["batch_size"]
@@ -46,8 +47,9 @@ def estimate_loss(model,train_data, val_data):
 
 if __name__ == "__main__":
 
-    with open("src-llm/data/train/raw_data.txt", "r", encoding="utf-8") as f:
+    with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
         text = f.read()
+        text = text[100:1000]
     logging.info(f"no. of tokens: {len(text)}")
     n = int(0.9*len(text))
 
@@ -65,8 +67,8 @@ if __name__ == "__main__":
     optimizer = AdamW(model.parameters(), lr=learning_rate)
 
     # training loop
-
-    for iter in range(1000):
+    start_time = time.time()
+    for iter in range(max_iters):
 
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
@@ -84,14 +86,22 @@ if __name__ == "__main__":
         optimizer.step()
     # genarate a sequence of tokens
     tokenizer = tiktoken.get_encoding('gpt2')
-    prompt = "s"
-    context = torch.tensor(tokenizer.encode(prompt, allowed_special={"<|startoftext|>","<|endoftext|>"})).view(1, -1)
-    print(tokenizer.decode(model.generate(context, max_new_tokens=100)[0].tolist()))
+    # prompt = "s"
+    # context = torch.tensor(tokenizer.encode(prompt, allowed_special={"<|startoftext|>","<|endoftext|>"})).view(1, -1)
+    # print(tokenizer.decode(model.generate(context, max_new_tokens=100)[0].tolist()))
     
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
-    print(tokenizer.decode(model.generate(context, max_new_tokens=2000)[0].tolist()))
+    print(tokenizer.decode(model.generate(context, max_new_tokens=1000)[0].tolist()))
     
 
     # save the model
     torch.save(model.state_dict(), f"src-llm/artifacts/model_{current_datetime}.pt")
+    logging.info(f"model saved as model_{current_datetime}.pt")
+    logging.info(f"total time: {time.time() - start_time}")
+    end_time = time.time()
+    training_time = end_time - start_time
+    hours, minutes, seconds = int(training_time // 3600), int((training_time % 3600) // 60), int(training_time % 60)
+    # Display the training time
+    print(f"Training time: {hours} hours, {minutes} minutes, {seconds} seconds")
+
 
