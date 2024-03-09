@@ -24,14 +24,14 @@ class GPTDatset(Dataset):
         except Exception as e:
             logging.error(f"create data failed {e}")
             raise e
-            
-    
+
     def __len__(self):
         return len(self.input_ids)
-    
+
     def __getitem__(self, idx):
         return self.input_ids[idx], self.target_ids[idx]
-    
+
+
 def create_dataloader(txt, batch_size=4, max_length=256, stride=128,shuffle=True):
     # intialize tokenizer
     tokenizer = tiktoken.get_encoding('gpt2')
@@ -55,7 +55,6 @@ if __name__ == "__main__":
     output_dim = 256
     max_len = 1024
     block_size = max_len
-
 
     token_embedding_layer = nn.Embedding(vocab_size, output_dim)
     pos_embedding_layer = torch.nn.Embedding(block_size, output_dim)
