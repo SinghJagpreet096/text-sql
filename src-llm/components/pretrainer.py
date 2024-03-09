@@ -7,7 +7,10 @@ import logging
 from data_loader import create_dataloader
 from datetime import datetime
 import time
+import random
+random.seed(42)
 current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+from datasets import load_dataset
 
 batch_size = GPT_CONFIG_124M["batch_size"]
 block_size = GPT_CONFIG_124M["ctx_len"]
@@ -16,7 +19,6 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = GPT_CONFIG_124M["eval_iters"]
 max_iters = GPT_CONFIG_124M["max_iters"]
 eval_interval = GPT_CONFIG_124M["eval_interval"]
-
 
 
 # data loading
@@ -49,12 +51,25 @@ if __name__ == "__main__":
 
     with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
         text = f.read()
-        text = text[100:1000]
-    logging.info(f"no. of tokens: {len(text)}")
-    n = int(0.9*len(text))
+        # text = text[100:1000]
+    # from datasets import load_dataset
 
+
+    # dataset = load_dataset("Bingsu/openwebtext_20p", )
+
+
+    # print(dataset['train']['text'][0:10])
+    # text = dataset['train']['text']
+    no_of_tokens = len(text)
+    logging.info(f"no. of tokens: {no_of_tokens}")
+    print(f"no of tokens OpenWeb-20p: {no_of_tokens}")
+    # sample_text = text[:int(no_of_tokens/3)]
+    # print(f"no of tokens in sample: {int(no_of_tokens/3)}")
+    
+    n = int(len(text) * 0.9)
     train_data = create_dataloader(text[:n], batch_size=8, max_length=4, stride=5)
     val_data = create_dataloader(text[n:], batch_size=8, max_length=4, stride=5)
+    print(f"train_data: {train_data.shape}, val_data: {val_data.shape}")
 
     # for batch in train_data:
     #     print(batch)
@@ -69,7 +84,7 @@ if __name__ == "__main__":
     # training loop
     start_time = time.time()
     for iter in range(max_iters):
-
+        print(f"training begins")
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
             losses = estimate_loss(model,train_data, val_data)

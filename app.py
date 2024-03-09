@@ -6,14 +6,10 @@ model = load_model('/Users/jagpreetsingh/ML_Projects/text-sql/artifacts/masking-
 @cl.on_message
 async def main(message: cl.Message):
     # Your custom logic goes here...
-
     pred = PredictTiktoken(model).inference_prediction(message.content)
     print(pred)
 
-
-
-
-    # Send a response back to the user
+   # Send a response back to the user
     await cl.Message(
         content=pred,
     ).send()
