@@ -14,3 +14,5 @@ no_of_tokens = len(text)
 with open ("src-llm/data/train/webtext-20p.txt", "w") as f:
     for s in text[:int(no_of_tokens/5)]:
         f.write(s + "\n")
+print("done")
+exit()

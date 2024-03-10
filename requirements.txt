@@ -12,4 +12,3 @@ rouge
 transformers
 transformers[torch]
 evaluate
-
