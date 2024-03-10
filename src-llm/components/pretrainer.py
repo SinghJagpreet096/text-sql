@@ -1,6 +1,6 @@
 import tiktoken
 import torch
-from config import GPT_CONFIG_124M
+from components.config import GPT_CONFIG_124M
 from gpt_model import GPTModel
 from torch.optim import AdamW
 import logging
@@ -26,7 +26,7 @@ def get_batch(dataloader):
     for batch in dataloader:
         X, Y = batch
         return X.to(device), Y.to(device)
-    
+
 
 @torch.no_grad()
 def estimate_loss(model,train_data, val_data):
@@ -74,11 +74,11 @@ if __name__ == "__main__":
     # for batch in train_data:
     #     print(batch)
     #     break
-    
-    # # intialize model 
+
+    # # intialize model
     model = GPTModel(GPT_CONFIG_124M).to(device)
 
-    # # initialize optimizer    
+    # # initialize optimizer
     optimizer = AdamW(model.parameters(), lr=learning_rate)
 
     # training loop
@@ -90,11 +90,11 @@ if __name__ == "__main__":
             losses = estimate_loss(model,train_data, val_data)
             print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
-    # # sample a batch of data
+        # # sample a batch of data
         xb, yb = get_batch(train_data)
-    #     # print(type(xb), type(yb))
+        #     # print(type(xb), type(yb))
 
-    #     # evaluate the loss
+        #     # evaluate the loss
         logits, loss = model(xb, yb)
         optimizer.zero_grad(set_to_none=True)
         loss.backward()
@@ -104,11 +104,12 @@ if __name__ == "__main__":
     # prompt = "s"
     # context = torch.tensor(tokenizer.encode(prompt, allowed_special={"<|startoftext|>","<|endoftext|>"})).view(1, -1)
     # print(tokenizer.decode(model.generate(context, max_new_tokens=100)[0].tolist()))
-    
+
     context = torch.zeros((1, 1), dtype=torch.long, device=device)
     print(tokenizer.decode(model.generate(context, max_new_tokens=1000)[0].tolist()))
-    
 
+    # create directory to save the model
+    os.makedirs("src-llm/artifacts", exist_ok=True)
     # save the model
     torch.save(model.state_dict(), f"src-llm/artifacts/model_{current_datetime}.pt")
     logging.info(f"model saved as model_{current_datetime}.pt")
@@ -118,5 +119,3 @@ if __name__ == "__main__":
     hours, minutes, seconds = int(training_time // 3600), int((training_time % 3600) // 60), int(training_time % 60)
     # Display the training time
     print(f"Training time: {hours} hours, {minutes} minutes, {seconds} seconds")
-
-

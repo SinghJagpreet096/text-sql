@@ -1,18 +1,19 @@
+import os
+import shutil
 from datasets import load_dataset
 
 
-dataset = load_dataset("Bingsu/openwebtext_20p", )
+dataset = load_dataset(
+    "Bingsu/openwebtext_20p",
+)
+
+sample = dataset["train"]["text"][:2000]
+print("sample: ", sample[0:10])
+
+shutil.rmtree("src-llm/data/train")
+os.makedirs("src-llm/data/train")
 
 
-# print(dataset['train']['text'][0:10])
-text = dataset['train']['text']
-# print(sample)
-# print(f"no of tokens: {len(dataset['train']['text'])}")
-no_of_tokens = len(text)
-
-
-with open ("src-llm/data/train/webtext-20p.txt", "w") as f:
-    for s in text[:int(no_of_tokens/5)]:
+with open("src-llm/data/train/webtext-20p.txt", "w") as f:
+    for s in sample:
         f.write(s + "\n")
-print("done")
-exit()

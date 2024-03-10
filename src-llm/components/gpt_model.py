@@ -2,9 +2,9 @@ import sys
 sys.path.append('src-llm/components/')
 import torch
 import torch.nn as nn
-from layer_norm import LayerNorm
-from transfomerblock import TransformerBlock
-from config import GPT_CONFIG_124M
+from components.layer_norm import LayerNorm
+from components.transfomerblock import TransformerBlock
+from components.config import GPT_CONFIG_124M
 import tiktoken
 from torch.nn import functional as F
 
@@ -20,7 +20,7 @@ class GPTModel(nn.Module):
         self.trf_block = nn.Sequential(
             *[TransformerBlock(cfg) for _ in range(cfg["n_layers"])]
             )
-        
+
         self.final_norm = LayerNorm(cfg["emb_dim"],)
         self.out_head = nn.Linear(
             cfg["emb_dim"], cfg["vocab_size"], bias=False
@@ -43,7 +43,7 @@ class GPTModel(nn.Module):
             targets = targets.view(batch_size*seq_len)
             loss = F.cross_entropy(logits, targets)
         return logits, loss
-    
+
     def generate(self, idx, max_new_tokens=1):
         # idx is (B, T) array of indices in the current context
         for _ in range(max_new_tokens):
@@ -60,9 +60,9 @@ class GPTModel(nn.Module):
             # append sampled index to the running sequence
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
-    
+
     def generate_query(self, idx, max_new_tokens=1, end_token=None):
-        
+
         for _ in range(max_new_tokens) :
             # crop idx to the last block_size tokens
             idx_cond = idx[:, -self.block_size:]
@@ -76,7 +76,7 @@ class GPTModel(nn.Module):
             idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
             # append sampled index to the running sequence
             if end_token is not None and idx_next.item() == end_token:
-            # Stop generation if end_pad_token is encountered
+                # Stop generation if end_pad_token is encountered
                 break
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
@@ -91,7 +91,7 @@ class GPTModel(nn.Module):
 #     # batch.append(torch.tensor(tokenizer.encode(txt2)))
 #     # batch = torch.stack(batch, dim=0)
 #     # # print(batch)
-    
+
 #     # torch.manual_seed(123)
 
 #     # model = GPTModel(GPT_CONFIG_124M)
