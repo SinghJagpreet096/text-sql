@@ -40,7 +40,10 @@ def create_dataloader(txt, batch_size=4, max_length=256, stride=128,shuffle=True
     dataset = GPTDatset(txt, tokenizer, max_length, stride)
 
     # create data loader
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    dataloader = DataLoader(
+        dataset=dataset, 
+        batch_size=batch_size,
+        shuffle=shuffle)
 
     return dataloader
 
