@@ -5,6 +5,8 @@ from components.data_loader import create_dataloader
 from accelerate import Accelerator
 from torch.optim import AdamW
 import torch
+import time
+from components.utils import processing_time
 
 logger = logging.getLogger(__name__)
 accelerator = Accelerator()
@@ -42,27 +44,34 @@ def main():
         return out
 
     device = accelerator.device
-    with open("src-llm/components/instructions.txt", "r", encoding="utf-8") as f:
+    with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
             text = f.read()
-    training_data = create_dataloader(text, batch_size=8, max_length=4, stride=5)
-    val_data = create_dataloader(text, batch_size=8, max_length=4, stride=5)
+    print(f"length of text: {len(text):,}")
+    
+    n = int(len(text)*0.9)
+    train_data = text[:n]
+    val_data = text[n:]
+    train_data = create_dataloader(train_data, batch_size=8, max_length=4, stride=5)
+    val_data = create_dataloader(val_data, batch_size=8, max_length=4, stride=5)
+
+    print(f"data created")
     model = GPTModel(GPT_CONFIG_124M).to(device)
     optimizer = AdamW(model.parameters(), lr=learning_rate)
 
-    model, optimizer, training_data, val_data= accelerator.prepare(
-        model, optimizer, training_data, val_data 
+    model, optimizer, train_data, val_data= accelerator.prepare(
+        model, optimizer, train_data, val_data 
     )
-
-    logger.info('traing begins')
+    # train_data = create_dataloader(train_data, batch_size=8, max_length=4, stride=5)
+    # val_data = create_dataloader(val_data, batch_size=8, max_length=4, stride=5)
+    print(f"training begins")
     for iter in range(500):
-        # print(f"training begins")
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
-            losses = estimate_loss(model,training_data, val_data)
+            losses = estimate_loss(model,train_data, val_data)
             print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
         # # sample a batch of data
-        xb, yb = get_batch(training_data)
+        xb, yb = get_batch(train_data)
         # evaluate the loss
         logits, loss = model(xb, yb)
         optimizer.zero_grad(set_to_none=True)
@@ -71,5 +80,8 @@ def main():
         optimizer.step()
 
     logger.info('training finished')    
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     start_time =time.time()
+#     main()
+#     end_time = time.time()
+#     processing_time

@@ -25,3 +25,18 @@ def estimate_loss(model,train_data, val_data):
         out[split] = losses.mean()
     model.train()
     return out
+
+def processing_time(start_time, end_time):
+    # convert to hours and minutes and  secocnds
+    # Calculate time difference
+    time_difference = end_time - start_time
+
+    # Convert time difference to hours, minutes, and seconds
+    hours = time_difference // 3600
+    time_difference %= 3600
+    minutes = time_difference // 60
+    time_difference %= 60
+    seconds = time_difference
+
+    # Print the time taken
+    return (f"Time taken: {hours} hours, {minutes} minutes, and {seconds:.2f} seconds")

@@ -12,3 +12,4 @@ rouge
 transformers
 transformers[torch]
 evaluate
+click
