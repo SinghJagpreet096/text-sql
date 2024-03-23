@@ -4,7 +4,7 @@ import prepare_data_openweb
 import time
 from components.utils import processing_time
 
-DATA_PREP = "data-prep"
+DATA_PREP = "data_prep"
 PRETRAIN = "pretrain"
 PRETRAIN_SAVE = "pretrain_and_save"
 FINE_TUNE = "fine-tune"
@@ -16,7 +16,7 @@ FINE_TUNE = "fine-tune"
     '-c',
     type=click.Choice([DATA_PREP,PRETRAIN,PRETRAIN_SAVE, FINE_TUNE]), 
     help="Choose the pipe to run"
-    "data-prep: Prepare data"
+    "data_prep: Prepare data"
     "pretrain: Pretrain the model"
     "fine-tune: Fine-tune the model")
 
