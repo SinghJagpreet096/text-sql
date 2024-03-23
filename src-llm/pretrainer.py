@@ -1,10 +1,10 @@
 import tiktoken
 import torch
 from components.config import GPT_CONFIG_124M
-from gpt_model import GPTModel
+from components.gpt_model import GPTModel
 from torch.optim import AdamW
 import logging
-from data_loader import create_dataloader
+from components.data_loader import create_dataloader
 from datetime import datetime
 import time
 import random
@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
         text = f.read()
-        # text = text[100:1000]
+    text = text[100:1000]
     # from datasets import load_dataset
 
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     n = int(len(text) * 0.9)
     train_data = create_dataloader(text[:n], batch_size=8, max_length=4, stride=5)
     val_data = create_dataloader(text[n:], batch_size=8, max_length=4, stride=5)
-    print(f"train_data: {train_data.shape}, val_data: {val_data.shape}")
+    # print(f"train_data: {train_data.shape}, val_data: {val_data.shape}")
 
     # for batch in train_data:
     #     print(batch)
@@ -83,8 +83,9 @@ if __name__ == "__main__":
 
     # training loop
     start_time = time.time()
+    print(f"training begins")
     for iter in range(max_iters):
-        print(f"training begins")
+        
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
             losses = estimate_loss(model,train_data, val_data)
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     # create directory to save the model
     os.makedirs("src-llm/artifacts", exist_ok=True)
     # save the model
-    torch.save(model.state_dict(), f"src-llm/artifacts/model_{current_datetime}.pt")
+    # torch.save(model.state_dict(), f"src-llm/artifacts/model_{current_datetime}.pt")
     logging.info(f"model saved as model_{current_datetime}.pt")
     logging.info(f"total time: {time.time() - start_time}")
     end_time = time.time()

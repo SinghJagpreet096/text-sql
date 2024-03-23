@@ -6,6 +6,7 @@ from components.utils import processing_time
 
 DATA_PREP = "data-prep"
 PRETRAIN = "pretrain"
+PRETRAIN_SAVE = "pretrain_and_save"
 FINE_TUNE = "fine-tune"
 
 
@@ -13,7 +14,7 @@ FINE_TUNE = "fine-tune"
 @click.option(
     '--config',
     '-c',
-    type=click.Choice([DATA_PREP,PRETRAIN, FINE_TUNE]), 
+    type=click.Choice([DATA_PREP,PRETRAIN,PRETRAIN_SAVE, FINE_TUNE]), 
     help="Choose the pipe to run"
     "data-prep: Prepare data"
     "pretrain: Pretrain the model"
@@ -25,17 +26,18 @@ def run_pipelines(config:str):
         prepare_data_openweb.main()
     elif config == PRETRAIN:
         pretrainer_multipcore.main()
+    elif config == PRETRAIN_SAVE:
+        pretrainer_multipcore.main(save=True)
     elif config == FINE_TUNE:
         pass
     else:
         raise ValueError(f"Invalid config: {config}")
     end_time = time.time()
     print(f"Pipeline {config} completed")
-    print(f'{processing_time(start_time,end_time)}')   
+    print(f'{processing_time(start_time,end_time)}')  
+    exit(0) 
 
 if __name__ == "__main__":
-    start_time = time.time()
     run_pipelines() 
-    end_time = time.time()
-    processing_time(start_time,end_time)    
+   
     

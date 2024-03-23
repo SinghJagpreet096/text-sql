@@ -7,7 +7,7 @@ import tiktoken
 # # intialize model
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model = GPTModel(GPT_CONFIG_124M).to(device)
-model.load_state_dict(torch.load("artifacts/model_2024-03-09_17-12-10.pt"))
+model.load_state_dict(torch.load("src-llm/artifacts/model_2024-03-23_01-39-17.pt"))
 tokenizer = tiktoken.get_encoding("gpt2")
 
 

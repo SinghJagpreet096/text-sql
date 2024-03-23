@@ -8,7 +8,7 @@ GPT_CONFIG_124M = {
     "learning_rate": 6e-4,  # learning rate
     "drop_rate": 0.1,  # Dropout rate
     "qkv_bias": False,  # qkv bias
-    "eval_interval": 200,  # evaluation interval (default 200)
-    "max_iters": 1000,  # maximum iterations (default 60000)
+    "eval_interval": 100,  # evaluation interval (default 200)
+    "max_iters": 10000,  # maximum iterations (default 60000)
     "eval_iters": 200,
 }

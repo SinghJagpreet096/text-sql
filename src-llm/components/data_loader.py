@@ -43,8 +43,7 @@ def create_dataloader(txt, batch_size=4, max_length=256, stride=128,shuffle=True
     dataloader = DataLoader(
         dataset=dataset, 
         batch_size=batch_size,
-        shuffle=shuffle,
-        num_workers=4)
+        shuffle=shuffle,)
 
     return dataloader
 

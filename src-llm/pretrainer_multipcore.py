@@ -5,8 +5,10 @@ from components.data_loader import create_dataloader
 from accelerate import Accelerator
 from torch.optim import AdamW
 import torch
-import time
-from components.utils import processing_time
+import os
+import tqdm
+from datetime import datetime
+
 
 logger = logging.getLogger(__name__)
 accelerator = Accelerator()
@@ -19,7 +21,7 @@ eval_iters = GPT_CONFIG_124M["eval_iters"]
 max_iters = GPT_CONFIG_124M["max_iters"]
 eval_interval = GPT_CONFIG_124M["eval_interval"]
 
-def main():
+def main(save=False):
     def get_batch(dataloader):
         for batch in dataloader:
             X, Y = batch
@@ -47,10 +49,10 @@ def main():
     with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
             text = f.read()
     print(f"length of text: {len(text):,}")
-    
+    # text = text[:1000]
     n = int(len(text)*0.9)
     train_data = text[:n]
-    val_data = text[n:]
+    val_data = text[:n]
     train_data = create_dataloader(train_data, batch_size=8, max_length=4, stride=5)
     val_data = create_dataloader(val_data, batch_size=8, max_length=4, stride=5)
 
@@ -64,7 +66,7 @@ def main():
     # train_data = create_dataloader(train_data, batch_size=8, max_length=4, stride=5)
     # val_data = create_dataloader(val_data, batch_size=8, max_length=4, stride=5)
     print(f"training begins")
-    for iter in range(500):
+    for iter in range(max_iters):
         # every once in a while evaluate the loss on train and val sets
         if iter % eval_interval == 0 or iter == max_iters - 1:
             losses = estimate_loss(model,train_data, val_data)
@@ -79,9 +81,16 @@ def main():
         accelerator.backward(loss)
         optimizer.step()
 
-    logger.info('training finished')    
-# if __name__ == "__main__":
-#     start_time =time.time()
-#     main()
-#     end_time = time.time()
-#     processing_time
+    def save_model():
+        os.makedirs("src-llm/artifacts", exist_ok=True)
+        current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        # save the model
+        torch.save(model.state_dict(), f"src-llm/artifacts/model_{current_datetime}.pt")
+        logging.info(f"model saved as model_{current_datetime}.pt")
+        print(f"model saved as model_{current_datetime}.pt")
+    if save:
+        save_model()
+    
+
+if __name__ == "__main__":
+    main()
