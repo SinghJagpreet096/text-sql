@@ -44,8 +44,9 @@ class GPTModel(nn.Module):
             loss = F.cross_entropy(logits, targets)
         return logits, loss
 
-    def generate(self, idx, max_new_tokens=1):
-        # idx is (B, T) array of indices in the current context
+    def generate(self, idx, max_new_tokens=1, end_token=None):
+        if end_token is not None:
+            end_token = torch.tensor(end_token)
         for _ in range(max_new_tokens):
             # crop idx to the last block_size tokens
             idx_cond = idx[:, -self.block_size:]
@@ -58,44 +59,12 @@ class GPTModel(nn.Module):
             # sample from the distribution
             idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
             # append sampled index to the running sequence
-            idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
-        return idx
-
-    def generate_query(self, idx, max_new_tokens=1, end_token=None):
-
-        for _ in range(max_new_tokens) :
-            # crop idx to the last block_size tokens
-            idx_cond = idx[:, -self.block_size:]
-            # get the predictions
-            logits, loss = self(idx_cond)
-            # focus only on the last time step
-            logits = logits[:, -1, :] # becomes (B, C)
-            # apply softmax to get probabilities
-            probs = F.softmax(logits, dim=-1) # (B, C)
-            # sample from the distribution
-            idx_next = torch.multinomial(probs, num_samples=1) # (B, 1)
-            # append sampled index to the running sequence
-            if end_token is not None and idx_next.item() == end_token:
+            if end_token is not None and idx_next == end_token:
+                print("End token encountered")
                 # Stop generation if end_pad_token is encountered
                 break
             idx = torch.cat((idx, idx_next), dim=1) # (B, T+1)
         return idx
 
 
-# if __name__ == "__main__":
-#     batch = []
-#     tokenizer = tiktoken.get_encoding("gpt2")
 
-
-#     # batch.append(torch.tensor(tokenizer.encode(txt1)))
-#     # batch.append(torch.tensor(tokenizer.encode(txt2)))
-#     # batch = torch.stack(batch, dim=0)
-#     # # print(batch)
-
-#     # torch.manual_seed(123)
-
-#     # model = GPTModel(GPT_CONFIG_124M)
-#     # out = model(batch)
-#     # print(f"Input batch:\n {batch}")
-#     # print(f"Output shape:\n {out.shape}")
-#     # print(out)

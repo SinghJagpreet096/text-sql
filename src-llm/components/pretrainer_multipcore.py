@@ -16,10 +16,10 @@ accelerator = Accelerator()
 batch_size = GPT_CONFIG_124M["batch_size"]
 block_size = GPT_CONFIG_124M["ctx_len"]
 learning_rate = GPT_CONFIG_124M["learning_rate"]
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
 eval_iters = GPT_CONFIG_124M["eval_iters"]
 max_iters = GPT_CONFIG_124M["max_iters"]
 eval_interval = GPT_CONFIG_124M["eval_interval"]
+device = accelerator.device
 
 def main(save=False):
     def get_batch(dataloader):
@@ -45,7 +45,6 @@ def main(save=False):
         model.train()
         return out
 
-    device = accelerator.device
     with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
             text = f.read()
     print(f"length of text: {len(text):,}")
@@ -63,8 +62,7 @@ def main(save=False):
     model, optimizer, train_data, val_data= accelerator.prepare(
         model, optimizer, train_data, val_data 
     )
-    # train_data = create_dataloader(train_data, batch_size=8, max_length=4, stride=5)
-    # val_data = create_dataloader(val_data, batch_size=8, max_length=4, stride=5)
+   
     print(f"training begins")
     for iter in range(max_iters):
         # every once in a while evaluate the loss on train and val sets

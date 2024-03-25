@@ -1,20 +1,25 @@
 import click
-import pretrainer_multipcore
-import prepare_data_openweb
+from components import pretrainer_multipcore
+from components import prepare_data_openweb
+from finetune import finetune
+from finetune import create_ft_data
+# from finetune import create_ft_data
 import time
 from components.utils import processing_time
 
 DATA_PREP = "data_prep"
+DATA_PREP_FT = "data_prep_ft"
 PRETRAIN = "pretrain"
 PRETRAIN_SAVE = "pretrain_and_save"
-FINE_TUNE = "fine-tune"
+FINE_TUNE = "fine_tune"
+FINE_TUNE_SAVE = "fine_tune_and_save"  
 
 
 @click.command()
 @click.option(
     '--config',
     '-c',
-    type=click.Choice([DATA_PREP,PRETRAIN,PRETRAIN_SAVE, FINE_TUNE]), 
+    type=click.Choice([DATA_PREP,DATA_PREP_FT,PRETRAIN,PRETRAIN_SAVE, FINE_TUNE, FINE_TUNE_SAVE]), 
     help="Choose the pipe to run"
     "data_prep: Prepare data"
     "pretrain: Pretrain the model"
@@ -24,12 +29,16 @@ def run_pipelines(config:str):
     start_time = time.time()
     if config == DATA_PREP:
         prepare_data_openweb.main()
+    elif config == DATA_PREP_FT:
+        create_ft_data.main()
     elif config == PRETRAIN:
         pretrainer_multipcore.main()
     elif config == PRETRAIN_SAVE:
         pretrainer_multipcore.main(save=True)
     elif config == FINE_TUNE:
-        pass
+        finetune.main()
+    elif config == FINE_TUNE_SAVE:
+        finetune.main(save=True)
     else:
         raise ValueError(f"Invalid config: {config}")
     end_time = time.time()

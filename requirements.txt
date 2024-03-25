@@ -13,3 +13,4 @@ transformers
 transformers[torch]
 evaluate
 click
+langchain
