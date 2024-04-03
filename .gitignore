@@ -20,4 +20,6 @@ finetune/test_trainer/
 spider_test.txt
 spider_train.txt
 logs/
+gemma-2b/
+llama/
 
