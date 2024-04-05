@@ -2,7 +2,6 @@
 # import os
 
 
-
 # API_TOKEN = os.getenv("HF_TOKEN")
 # headers = {"Authorization": f"Bearer {API_TOKEN}"}
 # API_URL = "https://api-inference.huggingface.co/models/google/gemma-2b"

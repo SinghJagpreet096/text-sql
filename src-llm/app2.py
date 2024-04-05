@@ -2,10 +2,15 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import chainlit as cl
 import re
 from langchain.prompts import ChatPromptTemplate
+from db_seedr import generate_create_table_sql, execute_query
+import sqlite3
+from sqlite3 import Error
+
+
 tokenizer = AutoTokenizer.from_pretrained("NumbersStation/nsql-350M")
 model = AutoModelForCausalLM.from_pretrained("NumbersStation/nsql-350M")
 
-
+conn = sqlite3.connect("pythonsqlite-v2.db")
 
 # PROMT = """CREATE TABLE stadium (
 #     stadium_id number,
@@ -55,50 +60,23 @@ model = AutoModelForCausalLM.from_pretrained("NumbersStation/nsql-350M")
 # messages = chat_template.format_messages(country="Canada", capital="Ottawa")
 # print(messages)
 
+
 @cl.on_message
 async def main(message: cl.Message):
     query = message.content
-    PROMT = f"""CREATE TABLE stadium (
-    stadium_id number,
-    location text,
-    name text,
-    capacity number,
-    highest number,
-    lowest number,
-    average number
-)
+    create_sql = generate_create_table_sql(conn)
+    # print(create_sql)
+    PROMT = (
+        create_sql
+        + f"""
 
-CREATE TABLE singer (
-    singer_id number,
-    name text,
-    country text,
-    song_name text,
-    song_release_year text,
-    age number,
-    is_male others
-)
+    -- Using valid SQLite, answer the following questions for the tables provided above.
 
-CREATE TABLE concert (
-    concert_id number,
-    concert_name text,
-    theme text,
-    stadium_id text,
-    year text
-)
+    -- {query}
 
-CREATE TABLE singer_in_concert (
-    concert_id number,
-    singer_id text
-)
+    SELECT"""
+    )
 
--- Using valid SQLite, answer the following questions for the tables provided above.
-
--- {query}
-
-SELECT"""
-
-    
-    
     input_ids = tokenizer(PROMT, return_tensors="pt").input_ids
 
     generated_ids = model.generate(input_ids, max_length=500)
@@ -107,7 +85,14 @@ SELECT"""
     if "SELECT" in pred:
         pred = pred.split("SELECT")[1]
     pred = "SELECT " + re.sub('"""', "",pred)
-    
+
+    result = execute_query(conn=conn, query=pred)
+
+    if len(result) > 0:
+        result = result[0][0]
+
+    output = f"QUERY:{pred} \n\n result:{result}"
+
     await cl.Message(
-        content=pred,
+        content=output,
     ).send()
