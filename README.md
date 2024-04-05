@@ -23,3 +23,6 @@ $ python src-llm/run.py -c pretrain_and_save
 ```bash
 $ python src-llm/run.py -c pretrain
 ```
+
+To run chainlit db integration use server.py in src folder 
+
