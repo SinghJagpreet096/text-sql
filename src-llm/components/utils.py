@@ -1,5 +1,7 @@
 import torch
-from components.config import GPT_CONFIG_124M
+from config import GPT_CONFIG_124M
+from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+from rouge import Rouge
 
 def get_batch(dataloader):
     for batch in dataloader:
@@ -40,3 +42,14 @@ def processing_time(start_time, end_time):
 
     # Print the time taken
     return (f"Time taken: {hours} hours, {minutes} minutes, and {seconds:.2f} seconds")
+
+def get_bleu_score(true_query,generated_query):
+    smoothing_function = SmoothingFunction().method1
+    bleu_scores = sentence_bleu([true_query.split()], generated_query.split(),smoothing_function=smoothing_function) 
+    return bleu_scores
+
+def get_rouge_score(true_query,generated_query):
+    rouge = Rouge()
+    scores = rouge.get_scores(generated_query, true_query)
+    rouge_score = scores[0]['rouge-l']['f']
+    return rouge_score

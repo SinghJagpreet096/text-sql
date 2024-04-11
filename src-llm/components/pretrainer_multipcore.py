@@ -44,11 +44,14 @@ def main(save=False):
             out[split] = losses.mean()
         model.train()
         return out
-
-    with open("src-llm/data/train/webtext-20p.txt", "r", encoding="utf-8") as f:
+    data_path = "src-llm/data/train/sql_context.txt"
+    with open(data_path, "r", encoding="utf-8") as f:
             text = f.read()
     print(f"length of text: {len(text):,}")
     # text = text[:1000]
+    sample = int(len(text)*0.2)
+    text = text[:sample]
+    print(f"length of sample: {len(text):,}")
     n = int(len(text)*0.9)
     train_data = text[:n]
     val_data = text[:n]

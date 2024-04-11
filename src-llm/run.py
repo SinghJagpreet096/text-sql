@@ -2,7 +2,8 @@ import click
 from components import pretrainer_multipcore
 from components import prepare_data_openweb
 from finetune import finetune
-from finetune import create_ft_data
+# from finetune import create_ft_data
+from components import sql_create_context
 # from finetune import create_ft_data
 import time
 from components.utils import processing_time
@@ -28,9 +29,9 @@ FINE_TUNE_SAVE = "fine_tune_and_save"
 def run_pipelines(config:str):
     start_time = time.time()
     if config == DATA_PREP:
-        prepare_data_openweb.main()
-    elif config == DATA_PREP_FT:
-        create_ft_data.main()
+        sql_create_context.main()
+    # elif config == DATA_PREP_FT:
+    #     create_ft_data.main()
     elif config == PRETRAIN:
         pretrainer_multipcore.main()
     elif config == PRETRAIN_SAVE:

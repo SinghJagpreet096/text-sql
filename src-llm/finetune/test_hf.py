@@ -20,19 +20,68 @@
 from transformers import AutoModelForCausalLM,AutoTokenizer
 import os
 
-os.environ['HF_TOKEN'] = os.getenv("HF_TOKEN")
+from transformers import AutoModelForCausalLM,AutoTokenizer,BitsAndBytesConfig
+import torch
+import os
 
+class EndpointHandler():
 
-tokenizer = AutoTokenizer.from_pretrained("singhjagpreet/gemma-2b_text_to_sql")
-model_id = "singhjagpreet/gemma-2b_text_to_sql"
-model = AutoModelForCausalLM.from_pretrained(model_id,
-                                             device_map={"":0},
-                                             token=os.environ['HF_TOKEN'])
+    def __init__(self, model_id=""):
+        self.device = "cpu:0"
+        # self.bnb_config = BitsAndBytesConfig(load_in_4bit=True,
+        #                                      bnb_4bit_quant_type="nf4",
+        #                                      bnb_4bit_compute_dtype=torch.bfloat16,)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+        self.model = AutoModelForCausalLM.from_pretrained(model_id,
+                                                          device_map={"":0},
+                                                        #   quantization_config=self.bnb_config,
+                                                        )
+        
+    def __call__(self, input:str) -> str:
+        
+        inputs = self.tokenizer(input, return_tensors="pt")
+        outputs = self.model.generate(**inputs, max_length=20)
+        result = (self.tokenizer.decode(outputs[0], skip_special_tokens=True))
+        return result
+model_id = "NumbersStation/nsql-350M"   
+handler = EndpointHandler(model_id)
+text = """CREATE TABLE stadium (
+    stadium_id number,
+    location text,
+    name text,
+    capacity number,
+    highest number,
+    lowest number,
+    average number
+)
 
-text = """Question: What is the average number of working horses of farms with greater than 45 total number of horses?
-Context: CREATE TABLE farm (Working_Horses INTEGER, Total_Horses INTEGER)"""
-device = "cuda:0"
-inputs = tokenizer(text, return_tensors="pt").to(device)
+CREATE TABLE singer (
+    singer_id number,
+    name text,
+    country text,
+    song_name text,
+    song_release_year text,
+    age number,
+    is_male others
+)
 
-outputs = model.generate(**inputs, max_new_tokens=20)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+CREATE TABLE concert (
+    concert_id number,
+    concert_name text,
+    theme text,
+    stadium_id text,
+    year text
+)
+
+CREATE TABLE singer_in_concert (
+    concert_id number,
+    singer_id text
+)
+
+-- Using valid SQLite, answer the following questions for the tables provided above.
+
+-- {query}
+
+SELECT
+"""
+(handler(text))
