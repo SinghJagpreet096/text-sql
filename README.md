@@ -1,4 +1,4 @@
-## TEXT TO SQL
+## TEXT2SQL
 create virtual env
 ```bash 
 $ python -m venv venv
