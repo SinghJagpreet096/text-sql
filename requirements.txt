@@ -5,13 +5,12 @@ gensim
 scikit-learn
 nltk
 tiktoken
-chainlit
 mlflow
 datasets
 rouge
-transformers
-transformers[torch]
 evaluate
+poetry
+chainlit==1.0.400
 click
 langchain
 bitsandbytes==0.42.0

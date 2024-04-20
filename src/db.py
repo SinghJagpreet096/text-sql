@@ -2,8 +2,7 @@
 
 import sqlite3
 from sqlite3 import Error
-
-CREATE_AND_SEED = True
+from chainlit.logger import logger
 
 
 def create_connection(db_file):
@@ -41,6 +40,7 @@ def seed_data(conn, seed_data_sql):
     try:
         c = conn.cursor()
         c.execute(seed_data_sql)
+        conn.commit()
     except Error as e:
         print(e)
 
@@ -128,6 +128,8 @@ def create_and_seed_tables(conn):
         """INSERT INTO singer_in_concert (concert_id, singer_id) VALUES (1, '1')""",
     )
 
+    conn.commit()
+
 
 def create_and_seed_table_v2(conn):
     # create database table for hospital management system
@@ -212,6 +214,8 @@ def create_and_seed_table_v2(conn):
         """INSERT INTO appointment (appointment_id, patient_id, doctor_id, hospital_id, appointment_date) VALUES (1, 1, 1, 1, '2022-12-12')""",
     )
 
+    conn.commit()
+
 
 def get_create_table_cmd(table_name, cursor):
     cursor.execute(f"PRAGMA table_info({table_name})")
@@ -246,18 +250,21 @@ def generate_create_table_sql(conn):
 
 
 def execute_query(conn, query):
+    try:
+        cursor = conn.cursor()
+        cursor.execute(query)
+    except sqlite3.Error as e:
+        logger.error(f"Error executing query: {e}")
+        return []
+    else:
+        return cursor.fetchall()
+
+
+def reset_db(conn):
     cursor = conn.cursor()
-    cursor.execute(query)
-    return cursor.fetchall()
-
-
-if __name__ == "__main__":
-    conn = sqlite3.connect("pythonsqlite-v2.db")
-    if CREATE_AND_SEED:
-        # create_and_seed_tables(conn)
-        create_and_seed_table_v2(conn)
-    result = execute_query(conn, query="SELECT * FROM patient;")
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cursor.fetchall()
+    for table in tables:
+        table_name = table[0]
+        cursor.execute(f"DROP TABLE {table_name}")
     conn.commit()
-    print(result)
-    # tables = generate_create_table_sql(conn)
-    # print(tables)

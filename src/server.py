@@ -1,81 +1,19 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import chainlit as cl
 import re
-from langchain.prompts import ChatPromptTemplate
-from db_seedr import generate_create_table_sql, execute_query
 import sqlite3
-from sqlite3 import Error
+from transformers import AutoTokenizer, AutoModelForCausalLM
+from fastapi import Query, Request
+from fastapi.responses import JSONResponse
+from chainlit.logger import logger
+from chainlit.config import config
+from chainlit.server import app
+import chainlit as cl
+from fastapi.templating import Jinja2Templates
+from db import generate_create_table_sql, seed_data, reset_db, execute_query
 
-tokenizer = AutoTokenizer.from_pretrained("NumbersStation/nsql-350M")
-model = AutoModelForCausalLM.from_pretrained("NumbersStation/nsql-350M")
+tokenizer = AutoTokenizer.from_pretrained("./model/")
+model = AutoModelForCausalLM.from_pretrained("./model/")
 
 conn = sqlite3.connect("pythonsqlite-v2.db")
-
-
-# PROMT = """CREATE TABLE stadium (
-#     stadium_id number,
-#     location text,
-#     name text,
-#     capacity number,
-#     highest number,
-#     lowest number,
-#     average number
-# )
-
-# CREATE TABLE singer (
-#     singer_id number,
-#     name text,
-#     country text,
-#     song_name text,
-#     song_release_year text,
-#     age number,
-#     is_male others
-# )
-
-# CREATE TABLE concert (
-#     concert_id number,
-#     concert_name text,
-#     theme text,
-#     stadium_id text,
-#     year text
-# )
-
-# CREATE TABLE singer_in_concert (
-#     concert_id number,
-#     singer_id text
-# )
-
-# -- Using valid SQLite, answer the following questions for the tables provided above.
-
-# -- What is the maximum, the average, and the minimum capacity of stadiums ?
-
-# SELECT"""
-
-
-# chat_template = ChatPromptTemplate.from_messages([
-#     ("human", "What is the capital of {country}?"),
-#     ("ai", "The capital of {country} is {capital}.")
-# ])
-
-
-# messages = chat_template.format_messages(country="Canada", capital="Ottawa")
-# print(messages)
-# @cl.password_auth_callback
-# def auth_callback(username: str, password: str):
-#     # Fetch the user matching username from your database
-#     # and compare the hashed password with the value stored in the database
-#     if (username, password) == ("admin", "admin"):
-#         return cl.User(
-#             identifier="admin", metadata={"role": "admin", "provider": "credentials"}
-#         )
-#     else:
-#         return None
-
-
-# @cl.on_chat_start
-# async def on_chat_start():
-#     app_user = cl.user_session.get("user")
-#     await cl.Message(f"Hello {app_user.identifier}").send()
 
 
 @cl.oauth_callback
@@ -83,6 +21,37 @@ def auth_callback(provider_id: str, token: str, raw_user_data, default_app_user)
     if provider_id == "github":
         return default_app_user
     return None
+
+
+@app.get("/project/translations")
+async def project_translations(
+    language: str = Query(default="en-US", description="Language code"),
+):
+    """Return project translations."""
+
+    # Load translation based on the provided language
+    translation = config.load_translation(language)
+
+    return JSONResponse(
+        content={
+            "translation": translation,
+        }
+    )
+
+
+# add a new post route to seed db with the queries provided by the user
+@app.post("/seed")
+async def seed(request: Request):
+    """Seed the database with the queries provided by the user."""
+    data = await request.json()
+    seed_data_sql = data["seed_data_sql"]
+    reset_db(conn)
+    seed_data(conn, seed_data_sql)
+    return JSONResponse(
+        content={
+            "message": "Data seeded successfully.",
+        }
+    )
 
 
 @cl.on_message
@@ -110,11 +79,13 @@ async def main(message: cl.Message):
         pred = pred.split("SELECT")[1]
     pred = "SELECT " + re.sub('"""', "", pred)
 
-    result = execute_query(conn=conn, query=pred)
+    logger.info(f"Generated SQL query: {pred}")
 
+    result = execute_query(conn=conn, query=pred)
     if len(result) > 0:
         result = result[0][0]
-
+    else:
+        result = "No results found."
     output = f"QUERY:{pred} \n\n result:{result}"
 
     await cl.Message(

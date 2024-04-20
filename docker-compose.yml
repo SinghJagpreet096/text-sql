@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  chainlit:
+    build: .
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./src:/src
+    command: ["chainlit", "run", "server.py", "--port", "7860"]
+
+volumes:
+  chainlit:
+    driver: local
+    driver_opts:
+      type: none
+      device: /src
+      o: bind

@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "chainlit",
+            "cwd": "${workspaceFolder}/src",
+            "args": [
+                "run",
+                "-d",
+                "-w",
+                "server.py"
+            ],
+          
+            "jinja": true
+        }
+    ]
+}
