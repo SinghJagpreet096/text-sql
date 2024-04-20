@@ -22,4 +22,5 @@ spider_train.txt
 logs/
 gemma-2b/
 llama/
-
+*/model/*
+*.db
